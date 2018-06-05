@@ -118,6 +118,7 @@ _pixman_image_init (pixman_image_t *image)
     common->clip_sources = FALSE;
     common->transform = NULL;
     common->repeat = PIXMAN_REPEAT_NONE;
+    common->dither = PIXMAN_DITHER_BEST;
     common->filter = PIXMAN_FILTER_NEAREST;
     common->filter_params = NULL;
     common->n_filter_params = 0;
@@ -681,6 +682,15 @@ pixman_image_set_repeat (pixman_image_t *image,
 
     image->common.repeat = repeat;
 
+    image_property_changed (image);
+}
+
+PIXMAN_EXPORT void
+pixman_image_set_dither (pixman_image_t *      image,
+		         pixman_dither_t       dither)
+{
+    image_common_t *common = (image_common_t *)image;
+    common->dither = dither;
     image_property_changed (image);
 }
 

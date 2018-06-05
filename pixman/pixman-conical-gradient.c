@@ -57,11 +57,11 @@ conical_get_scanline_narrow (pixman_iter_t *iter, const uint32_t *mask)
     int x = iter->x;
     int y = iter->y;
     int width = iter->width;
-    uint32_t *buffer = iter->buffer;
+    argb_t *buffer =(argb_t*)( iter->buffer);
 
     gradient_t *gradient = (gradient_t *)image;
     conical_gradient_t *conical = (conical_gradient_t *)image;
-    uint32_t       *end = buffer + width;
+    argb_t       *end = buffer + width;
     pixman_gradient_walker_t walker;
     pixman_bool_t affine = TRUE;
     double cx = 1.;
@@ -164,9 +164,6 @@ static uint32_t *
 conical_get_scanline_wide (pixman_iter_t *iter, const uint32_t *mask)
 {
     uint32_t *buffer = conical_get_scanline_narrow (iter, NULL);
-
-    pixman_expand_to_float (
-	(argb_t *)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 
     return buffer;
 }

@@ -66,7 +66,7 @@ fdot (double x1,
     return x1 * x2 + y1 * y2 + z1 * z2;
 }
 
-static uint32_t
+static argb_t
 radial_compute_color (double                    a,
 		      double                    b,
 		      double                    c,
@@ -93,13 +93,14 @@ radial_compute_color (double                    a,
      *  - the above problems are worse if a is small (as inva becomes bigger)
      */
     double discr;
+    argb_t _0; _0.a=0; _0.r=0; _0.g=0; _0.b=0;
 
     if (a == 0)
     {
 	double t;
 
 	if (b == 0)
-	    return 0;
+	    return _0;
 
 	t = pixman_fixed_1 / 2 * c / b;
 	if (repeat == PIXMAN_REPEAT_NONE)
@@ -113,7 +114,6 @@ radial_compute_color (double                    a,
 		return _pixman_gradient_walker_pixel (walker, t);
 	}
 
-	return 0;
     }
 
     discr = fdot (b, a, 0, b, -c, 0);
@@ -152,7 +152,7 @@ radial_compute_color (double                    a,
 	}
     }
 
-    return 0;
+    return _0;
 }
 
 static uint32_t *
@@ -243,13 +243,14 @@ radial_get_scanline_narrow (pixman_iter_t *iter, const uint32_t *mask)
     int x = iter->x;
     int y = iter->y;
     int width = iter->width;
-    uint32_t *buffer = iter->buffer;
+    argb_t *buffer = (argb_t*)(iter->buffer);
 
     gradient_t *gradient = (gradient_t *)image;
     radial_gradient_t *radial = (radial_gradient_t *)image;
-    uint32_t *end = buffer + width;
+    argb_t *end = buffer + width;
     pixman_gradient_walker_t walker;
     pixman_vector_t v, unit;
+    argb_t _0; _0.a=0; _0.r=0; _0.g=0; _0.b=0;
 
     /* reference point is the center of the pixel */
     v.vector[0] = pixman_int_to_fixed (x) + pixman_fixed_1 / 2;
@@ -384,7 +385,7 @@ radial_get_scanline_narrow (pixman_iter_t *iter, const uint32_t *mask)
 		}
 		else
 		{
-		    *buffer = 0;
+		    *buffer = _0;
 		}
 	    }
 
@@ -404,9 +405,6 @@ static uint32_t *
 radial_get_scanline_wide (pixman_iter_t *iter, const uint32_t *mask)
 {
     uint32_t *buffer = radial_get_scanline_narrow (iter, NULL);
-
-    pixman_expand_to_float (
-	(argb_t *)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
 
     return buffer;
 }

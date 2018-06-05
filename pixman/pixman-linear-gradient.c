@@ -96,14 +96,14 @@ linear_get_scanline_narrow (pixman_iter_t  *iter,
     int             x      = iter->x;
     int             y      = iter->y;
     int             width  = iter->width;
-    uint32_t *      buffer = iter->buffer;
+    argb_t *        buffer = (argb_t*)(iter->buffer);
 
     pixman_vector_t v, unit;
     pixman_fixed_32_32_t l;
     pixman_fixed_48_16_t dx, dy;
     gradient_t *gradient = (gradient_t *)image;
     linear_gradient_t *linear = (linear_gradient_t *)image;
-    uint32_t *end = buffer + width;
+    argb_t *end = buffer + width;
     pixman_gradient_walker_t walker;
 
     _pixman_gradient_walker_init (&walker, gradient, image->common.repeat);
@@ -160,7 +160,7 @@ linear_get_scanline_narrow (pixman_iter_t  *iter,
 
 	if (((pixman_fixed_32_32_t )(inc * width)) == 0)
 	{
-	    register uint32_t color;
+	    register argb_t color;
 
 	    color = _pixman_gradient_walker_pixel (&walker, t);
 	    while (buffer < end)
@@ -227,16 +227,13 @@ linear_get_scanline_wide (pixman_iter_t *iter, const uint32_t *mask)
 {
     uint32_t *buffer = linear_get_scanline_narrow (iter, NULL);
 
-    pixman_expand_to_float (
-	(argb_t *)buffer, buffer, PIXMAN_a8r8g8b8, iter->width);
-
     return buffer;
 }
 
 void
 _pixman_linear_gradient_iter_init (pixman_image_t *image, pixman_iter_t  *iter)
 {
-    if (linear_gradient_is_horizontal (
+    if (0 && linear_gradient_is_horizontal (
 	    iter->image, iter->x, iter->y, iter->width, iter->height))
     {
 	if (iter->iter_flags & ITER_NARROW)

@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "pixman-private.h"
 #include "pixman-combine32.h"
 #include "pixman-inlines.h"
@@ -750,6 +751,56 @@ _pixman_bits_image_src_iter_init (pixman_image_t *image, pixman_iter_t *iter)
 
     /* Just in case we somehow didn't find a scanline function */
     iter->get_scanline = _pixman_iter_get_scanline_noop;
+}
+
+
+static float dither_channel (float f, int n_bits, uint32_t *state)
+{
+    uint32_t u,i_rem;
+    float f_rem;
+    if (f>=0.999) f = 0.999;
+    if (f<0) f = 0.;
+
+    u = f * (1 << n_bits);
+    f_rem = ( (float)(1<<n_bits)*f - (float)u);
+    i_rem = f_rem * 4294967296.;
+
+    *state = pixman_prng_get(*state);
+        printf("%f / %f\n",f_rem, (float)(*state)/4294967296.);
+    if( *state < i_rem )
+        return 0.999;//MIN (1.0 ,f + (1.0/((float)(1<<n_bits))));
+    return f;
+}
+
+
+void
+_pixman_dither(pixman_image_t *image, pixman_iter_t *iter)
+{
+    int i,j,w;
+    int a_size, r_size, g_size, b_size;
+    argb_t *buf;
+    uint32_t *state = &(image->common.state);
+    pixman_format_code_t format = image->common.extended_format_code;
+
+    if(image->common.dither == PIXMAN_DITHER_NONE)
+        return;
+
+    a_size = PIXMAN_FORMAT_A (format);
+    r_size = PIXMAN_FORMAT_R (format);
+    g_size = PIXMAN_FORMAT_G (format);
+    b_size = PIXMAN_FORMAT_B (format);
+
+    w = iter->width;
+
+    buf = (argb_t*)(iter->buffer) - w;
+        for (j=0;j<w;++j) {
+            buf->a = dither_channel(buf->a, a_size, state);
+            buf->r = dither_channel(buf->r, r_size, state);
+            buf->g = dither_channel(buf->g, g_size, state);
+            buf->b = dither_channel(buf->b, b_size, state);
+            ++buf;
+        }
+    return;
 }
 
 static uint32_t *

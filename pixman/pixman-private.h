@@ -104,6 +104,8 @@ struct image_common
     pixman_transform_t *        transform;
     pixman_repeat_t             repeat;
     pixman_filter_t             filter;
+    pixman_dither_t             dither;
+    uint32_t                    state;
     pixman_fixed_t *            filter_params;
     int                         n_filter_params;
     bits_image_t *              alpha_map;
@@ -297,6 +299,12 @@ _pixman_conical_gradient_iter_init (pixman_image_t *image, pixman_iter_t *iter);
 void
 _pixman_image_init (pixman_image_t *image);
 
+void
+_pixman_dither (pixman_image_t *image, pixman_iter_t *iter);
+
+uint32_t
+pixman_prng_get(uint32_t state);
+
 pixman_bool_t
 _pixman_bits_image_init (pixman_image_t *     image,
                          pixman_format_code_t format,
@@ -363,7 +371,7 @@ void
 _pixman_gradient_walker_reset (pixman_gradient_walker_t *walker,
                                pixman_fixed_48_16_t      pos);
 
-uint32_t
+argb_t
 _pixman_gradient_walker_pixel (pixman_gradient_walker_t *walker,
                                pixman_fixed_48_16_t      x);
 

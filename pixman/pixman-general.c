@@ -141,7 +141,8 @@ general_composite_rect  (pixman_implementation_t *imp,
     if ((src_image->common.flags & FAST_PATH_NARROW_FORMAT)		     &&
 	(!mask_image || mask_image->common.flags & FAST_PATH_NARROW_FORMAT)  &&
 	(dest_image->common.flags & FAST_PATH_NARROW_FORMAT)		     &&
-	!(operator_needs_division (op)))
+	(!(operator_needs_division (op)))  &&   (!(src_image->type == LINEAR))&&
+	(!(src_image->type == RADIAL))    &&   (!(src_image->type == CONICAL)))
     {
 	width_flag = ITER_NARROW;
 	Bpp = 4;
@@ -151,6 +152,7 @@ general_composite_rect  (pixman_implementation_t *imp,
 	width_flag = ITER_WIDE;
 	Bpp = 16;
     }
+    printf("%d x %d Bpp %d type%d\n",width, height, Bpp, src_image->type);
 
 #define ALIGN(addr)							\
     ((uint8_t *)((((uintptr_t)(addr)) + 15) & (~15)))
@@ -221,6 +223,9 @@ general_composite_rect  (pixman_implementation_t *imp,
 	d = dest_iter.get_scanline (&dest_iter, NULL);
 
 	compose (imp->toplevel, op, d, s, m, width);
+
+    if (width_flag == ITER_WIDE)
+        _pixman_dither(dest_image, &dest_iter);
 
 	dest_iter.write_back (&dest_iter);
     }

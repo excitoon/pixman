@@ -328,3 +328,12 @@ _pixman_log_error (const char *function, const char *message)
 	n_messages++;
     }
 }
+
+uint32_t
+pixman_prng_get(uint32_t x)
+{
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 15;
+    return x;
+}

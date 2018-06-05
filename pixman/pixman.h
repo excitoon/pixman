@@ -318,6 +318,13 @@ typedef enum
 
 typedef enum
 {
+    PIXMAN_DITHER_NONE,
+    PIXMAN_DITHER_BEST
+} pixman_dither_t;
+
+
+typedef enum
+{
     PIXMAN_OP_CLEAR			= 0x00,
     PIXMAN_OP_SRC			= 0x01,
     PIXMAN_OP_DST			= 0x02,
@@ -807,6 +814,8 @@ pixman_bool_t   pixman_image_set_transform           (pixman_image_t            
 						      const pixman_transform_t     *transform);
 void            pixman_image_set_repeat              (pixman_image_t               *image,
 						      pixman_repeat_t               repeat);
+void            pixman_image_set_dithering           (pixman_image_t               *image,
+		                                      pixman_dither_t              dither);
 pixman_bool_t   pixman_image_set_filter              (pixman_image_t               *image,
 						      pixman_filter_t               filter,
 						      const pixman_fixed_t         *filter_params,
